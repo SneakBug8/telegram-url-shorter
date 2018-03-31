@@ -32,22 +32,40 @@ namespace url_shortener
 
         void OnMessage(object sender, MessageEventArgs args)
         {
-            if (args.Message.Text == "/start") {
-                Client.SendTextMessageAsync(args.Message.Chat.Id, "Hi. I'm your handy shortening bot." + 
+            if (args.Message.Text == "/start")
+            {
+                Client.SendTextMessageAsync(args.Message.Chat.Id, "Hi. I'm your handy shortening bot." +
                 "Just send me Url and I'll shorten it for you");
                 return;
             }
-            
+
             Console.WriteLine(string.Format("Recieved message '{0}'.", args.Message.Text));
             var message = Client.SendTextMessageAsync(args.Message.Chat.Id, "Processing your link...").Result;
-            var url = JsonConvert.DeserializeObject<Response>(GetShortenedUrl(args.Message.Text)).url;
+            var json = GetShortenedUrl(args.Message.Text);
+            var response = JsonConvert.DeserializeObject<Response>(json);
             Client.DeleteMessageAsync(args.Message.Chat.Id, message.MessageId);
-            Client.SendTextMessageAsync(args.Message.Chat.Id, "Your link is: " + url);
+
+            if (response.status == "1")
+            {
+                Client.SendTextMessageAsync(args.Message.Chat.Id, "Your link is: " + response.url);
+            }
+            else
+            {
+                var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(json);
+                Client.SendTextMessageAsync(args.Message.Chat.Id, "Error: " + errorResponse.msg);
+            }
         }
 
-        class Response {
+        class Response
+        {
             public string status;
             public string url;
+        }
+
+        class ErrorResponse
+        {
+            public string status;
+            public string msg;
         }
 
         string GetShortenedUrl(string url)
