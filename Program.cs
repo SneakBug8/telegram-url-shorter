@@ -7,7 +7,7 @@ namespace url_shortener
        static void Main(string[] args)
         {
             Console.WriteLine("Starting Bot");
-            var Bot = new Bot("534058345:AAEZk7gjrOApzMYgqbaysy-mDefigs_xNl4");
+            var Bot = new Bot("<-Your API key there->");
 
             while (true) {
                 
